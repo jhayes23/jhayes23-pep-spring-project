@@ -20,13 +20,32 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    // @Transactional return integer
-    public Account registerAccount(Account account){
+    public Account registerAccount(Account account)throws IllegalArgumentException{
+     
+            if(account == null || account.getUsername() == null 
+            || account.getPassword().length() < 4
+            || account.getPassword() == null 
+            || account.getUsername().trim().isEmpty()) throw new IllegalArgumentException("Does not meet requirements.");
+            
+
+            if(getAccountByUser(account.getUsername()).isPresent()) {
+                throw new IllegalArgumentException("Username already exists.");
+            }
+       
+
         return accountRepository.save(account);
     }
 
-    public Account getAccountById(Integer id){
-        Optional<Account> optionalAccount = accountRepository.findById(id);
-        return optionalAccount.isPresent() ? optionalAccount.get() : null;
+    public Optional<Account> getAccountByUser(String username){
+        return accountRepository.findByUsername(username);
+    }
+
+    public Account loginAccount(Account account){
+        Optional<Account> optionalAccount = accountRepository.findByUsernameAndPassword
+        (account.getUsername(),account.getPassword());
+        if (optionalAccount.isPresent()) {
+            return optionalAccount.get();
+        }
+       return null;
     }
 }

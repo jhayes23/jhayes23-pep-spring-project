@@ -2,10 +2,17 @@ package com.example.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.context.ApplicationContext;
 
+import com.example.SocialMediaApp;
 import com.example.entity.*;
+import com.example.service.AccountService;
+import com.example.service.MessageService;
 
 
 /**
@@ -17,18 +24,34 @@ import com.example.entity.*;
 @RestController
 public class SocialMediaController {
 
+@Autowired
+private AccountService accountService;
 
+@Autowired
+private MessageService messageService;
+
+//TODO FIX REGISTER
 @PostMapping("/register")
 public ResponseEntity<Account> register(@RequestBody Account newAccount){
-    return null;
+    try {
+       Account account = accountService.registerAccount(newAccount);
+       return ResponseEntity.status(200).body(account);
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.status(409).body(null);
+    }
+    
 }
 @PostMapping("/login")
 public ResponseEntity<Account> login(@RequestBody Account LoginRequest){
-    return null;
+    Account login = accountService.loginAccount(LoginRequest);
+    if(login == null) return ResponseEntity.status(401).body(null);
+    return ResponseEntity.status(200).body(login);
 }
 @PostMapping("/messages")
 public ResponseEntity<Message> createMessage(@RequestBody Message message){
-    return null;
+    Message createMessage = messageService.createMessage(message);
+    if(createMessage == null) return ResponseEntity.status(400).body(null);
+    return ResponseEntity.status(200).body(createMessage);
 
 }
 @GetMapping("messages")
