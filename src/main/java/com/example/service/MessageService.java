@@ -29,11 +29,12 @@ public class MessageService {
             String messageText = message.getMessageText();
 
             if(messageText != null && !messageText.isEmpty()
-            && messageText.length() < 255){
-                return null;
+            && messageText.length() < 255
+            && accountRepository.existsById(message.getPostedBy())){
+                return messageRepository.save(message);
             } 
         }
-        return messageRepository.save(message);
+        return null;
     }
 
     public Message getMessageById(Integer id){
@@ -45,32 +46,32 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
-    public void deleteMessage(Integer id){
-        messageRepository.deleteById(id);
-    }
-
-    public Message updateMessage(Integer id, Message replacement){
-        Optional<Message> optionalMessage = messageRepository.findById(id);
-        if(optionalMessage.isPresent()){
-            Message message = optionalMessage.get();
-            message.setMessageText(replacement.getMessageText());
-            return messageRepository.save(message);
+    public Integer deleteMessage(int id){
+        if(messageRepository.existsById(id)){
+            messageRepository.deleteById(id);
+            return 1;
         }
         return null;
     }
+
+    public Integer updateMessage(int id, Message replacement){
+        if(replacement != null){
+            String messageText = replacement.getMessageText();
+
+            if(messageText != null && !messageText.isEmpty()
+            && messageText.length() < 255){
+                Optional<Message> optionalMessage = messageRepository.findById(id);
+                if(optionalMessage.isPresent()){
+                    Message message = optionalMessage.get();
+                    message.setMessageText(replacement.getMessageText());
+                    return messageRepository.save(message) != null ? 1 : null;
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<Message> getAllMessagesByUser(int accountId){
+        return messageRepository.findAllByPostedBy(accountId);
+    }
 }
-
-    //TODO GET BY USER
-
-
-
-// public class UserService {
-
-//     @Autowired
-//     private UserRepository userRepository;
-
-//     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-//     public void updateUser(User user) {
-//         // Perform database operations
-//         userRepository.save(user);
-//     }
