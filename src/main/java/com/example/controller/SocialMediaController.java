@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.entity.*;
+import com.example.exception.InvalidCredentialsException;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
 
@@ -20,7 +21,6 @@ private AccountService accountService;
 @Autowired
 private MessageService messageService;
 
-//TODO FIX REGISTER
 @PostMapping("/register")
 public ResponseEntity<Account> register(@RequestBody Account newAccount){
     try {
@@ -28,6 +28,8 @@ public ResponseEntity<Account> register(@RequestBody Account newAccount){
        return ResponseEntity.status(200).body(account);
     } catch (IllegalArgumentException e) {
         return ResponseEntity.status(409).body(null);
+    }catch(InvalidCredentialsException e){
+        return ResponseEntity.status(400).body(null);
     }
     
 }
